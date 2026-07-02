@@ -39,7 +39,7 @@ use serde::{Serialize, Deserialize};
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-pub struct HpoMatch {
+pub struct OntologyMatch {
     /// HPO identifier of the matched concept, e.g., HP:0011995
     pub id: String,
     /// Corresponding HPO label, e.g., Atrial septal dilatation 
@@ -51,7 +51,7 @@ pub struct HpoMatch {
 
 pub struct AutoCompleter {
     /// Strings for autocompletion
-    hpo_auto_complete: Vec<HpoMatch>,
+    hpo_auto_complete: Vec<OntologyMatch>,
 }
 
 impl AutoCompleter {
@@ -68,23 +68,23 @@ impl AutoCompleter {
     
 
     /// Set up autocomplete functionality 
-    fn initialize_hpo_autocomplete<O, T>(hpo: Arc<O>) -> Vec<HpoMatch> where
+    fn initialize_hpo_autocomplete<O, T>(hpo: Arc<O>) -> Vec<OntologyMatch> where
         O: OntologyTerms<T> + HierarchyWalks,
         T: MinimalTerm + Synonymous, {
-        let mut hpo_auto_complete: Vec<HpoMatch> = Vec::new();
+        let mut hpo_auto_complete: Vec<OntologyMatch> = Vec::new();
         for tid in  hpo.iter_descendant_ids(&PHENOTYPIC_ABNORMALITY) {
             match hpo.term_by_id(tid) {
                 Some(term) => {
                     let id_str = tid.to_string();
                     let primary_label = term.name().to_string();
-                    hpo_auto_complete.push(HpoMatch {
+                    hpo_auto_complete.push(OntologyMatch {
                         id: id_str.clone(),
                         label: primary_label.clone(),
                         matched_text: primary_label.clone(),
                     });
                     for synonym in term.synonyms() {
                         let label = synonym.name.clone();
-                        hpo_auto_complete.push(HpoMatch {
+                        hpo_auto_complete.push(OntologyMatch {
                             id: id_str.clone(),
                             label: primary_label.clone(),
                             matched_text: label, 
@@ -98,7 +98,7 @@ impl AutoCompleter {
     }
 
      /// Provide Strings with TermId - Label that will be used for autocompletion
-    pub fn search_hpo(&self, query: &str, limit: usize) -> Vec<HpoMatch> {
+    pub fn search_hpo(&self, query: &str, limit: usize) -> Vec<OntologyMatch> {
         let matcher = SkimMatcherV2::default();
         let query_lower = query.to_lowercase();
         static HPO_ID_REGEX: OnceLock<Regex> = OnceLock::new();
@@ -131,7 +131,7 @@ impl AutoCompleter {
     }
 
      /// We want to get the single best match of any HPO term label to the query string
-    pub fn get_best_hpo_match(&self, query: String) -> Option<HpoMatch> {
+    pub fn get_best_hpo_match(&self, query: String) -> Option<OntologyMatch> {
         let matcher = SkimMatcherV2::default();
         let query_lower = query.to_lowercase();
         // First, prioritize exact matches
