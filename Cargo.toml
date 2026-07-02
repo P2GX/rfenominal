@@ -1,9 +1,13 @@
 [package]
 name = "fenominal"
 version = "0.2.11"
-
 description = "HPO-based text mining. Rust version of fenominal"
 edition = "2021"
+
+[lib]
+name = "fenominal"
+# cdylib is required for Python, rlib keeps it usable as a Rust library
+crate-type = ["cdylib", "rlib"]
 
 
 [[bin]]
@@ -17,6 +21,7 @@ deunicode = "1.6.2"
 fuzzy-matcher = "0.3"
 once_cell = "1.21.4"
 ontolius = { version = "0.7.4", features = ["csr", "obographs"] }
+pyo3 = { version = "0.21", features = ["extension-module", "abi3-py37"], optional = true }
 regex = "1.12.3"
 rstest = "0.26.1"
 serde = { version = "1.0.228", optional = true }
@@ -26,6 +31,7 @@ thiserror = "2.0.18"
 [features]
 default = ["serde"]
 serde = ["dep:serde", "dep:serde_json"]
+python = ["dep:pyo3"]
 
 
 [dev-dependencies]

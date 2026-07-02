@@ -16,3 +16,7 @@ Cargo.lock
 
 .idea/
 .DS_Store
+docs/.vitepress/dist
+docs/.vitepress/cache
+node_modules/
+package-lock.json

@@ -9,8 +9,11 @@ use crate::models::fenominal_model::{FenominalHit, FenominalSentence};
 use crate::simple_sentence::SimpleSentence;
 use crate::util::error::FenominalError;
 use crate::{sanitize, sentence_split};
+use ontolius::io::OntologyLoaderBuilder;
+use ontolius::ontology::csr::FullCsrOntology;
 use ontolius::ontology::{HierarchyWalks, OntologyTerms};
 use ontolius::term::{MinimalTerm, Synonymous};
+use ontolius::term::simple::SimpleTerm;
 
 #[cfg(feature = "serde")]
 
@@ -36,6 +39,7 @@ impl<O, T> Fenominal<O, T>
             sentence_mapper: SentenceMapper::new(hpo_arc),
         }
     }
+
 
     pub fn map_text(&self, text: &str) -> Result<Vec<FenominalHit>, FenominalError> {
         let core_document = CoreDocument::new(text);
@@ -79,4 +83,16 @@ impl<O, T> Fenominal<O, T>
 
 
 
-
+impl Fenominal<FullCsrOntology, SimpleTerm> {
+    pub fn from_hpo_json(path: &str) -> Result<Self, String> {
+        let loader = OntologyLoaderBuilder::new().obographs_parser().build();
+        
+        // If load_from_path can fail, it's safer to map the error rather than panicking with expect
+        let ontology: FullCsrOntology = loader
+            .load_from_path(path)
+            .map_err(|e| format!("Could not load {}: {}", path, e))?;
+            
+        let hpo_arc = Arc::new(ontology);
+        Ok(Self::new(hpo_arc))
+    }
+}
