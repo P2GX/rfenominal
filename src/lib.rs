@@ -75,7 +75,7 @@ mod simple_token;
 mod stopwords;
 
 
-pub use crate::autocomplete::{AutoCompleter, HpoMatch};
+pub use crate::autocomplete::{AutoCompleter, OntologyMatch};
 pub use crate::models::fenominal_model::{
     FenominalHit, FenominalHitSegment, FenominalSegment, FenominalSentence, FenominalText,
 };

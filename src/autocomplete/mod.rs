@@ -7,5 +7,5 @@
 
 pub mod autocompleter;
 
-pub use self::autocompleter::{AutoCompleter, HpoMatch};
+pub use self::autocompleter::{AutoCompleter, OntologyMatch};
 
