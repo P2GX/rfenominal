@@ -76,6 +76,7 @@ mod stopwords;
 
 
 pub use crate::autocomplete::{AutoCompleter, OntologyMatch};
+use crate::core_document::CoreDocument;
 pub use crate::models::fenominal_model::{
     FenominalHit, FenominalHitSegment, FenominalSegment, FenominalSentence, FenominalText,
 };
@@ -83,3 +84,48 @@ pub use crate::fenominal::Fenominal;
 pub use crate::util::text_util::sanitize;
 pub use crate::util::text_util::sentence_split;
 pub use crate::util::error::FenominalError;
+
+
+#[cfg(feature = "python")]
+use pyo3::prelude::*;
+
+/// Python wrapper for the Fenominal text mining engine.
+#[cfg(feature = "python")]
+#[pyclass(name = "Fenominal")]
+pub struct PyFenominal {
+    inner: crate::Fenominal<
+        ontolius::ontology::csr::FullCsrOntology, 
+        ontolius::term::simple::SimpleTerm
+    >,
+}
+
+#[cfg(feature = "python")]
+#[pymethods]
+impl PyFenominal {
+    /// Create a new Fenominal instance by loading an HPO JSON file.
+    #[new]
+    fn new(hp_json_path: &str) -> PyResult<Self> {
+        let inner = crate::Fenominal::from_hpo_json(hp_json_path)
+            .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e))?;
+        Ok(PyFenominal { inner })
+    }
+
+    /// Mines text and returns the hits serialized as a JSON string.
+    fn map_text(&self, text: &str) -> PyResult<String> {
+        let hits = self.inner.map_text(text)
+            .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e.to_string()))?;
+        
+        // Serialize the results to JSON for easy consumption in Python
+        serde_json::to_string(&hits)
+            .map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))
+    }
+}
+
+/// The entry point for the compiled Python extension module.
+#[cfg(feature = "python")]
+#[pymodule]
+#[pyo3(name = "fenominal")] // This tells Python the module name is 'fenominal'
+fn fenominal_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_class::<PyFenominal>()?;
+    Ok(())
+}
