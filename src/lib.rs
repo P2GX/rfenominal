@@ -76,7 +76,6 @@ mod stopwords;
 
 
 pub use crate::autocomplete::{AutoCompleter, OntologyMatch};
-use crate::core_document::CoreDocument;
 pub use crate::models::fenominal_model::{
     FenominalHit, FenominalHitSegment, FenominalSegment, FenominalSentence, FenominalText,
 };
@@ -102,7 +101,6 @@ pub struct PyFenominal {
 #[cfg(feature = "python")]
 #[pymethods]
 impl PyFenominal {
-    /// Create a new Fenominal instance by loading an HPO JSON file.
     #[new]
     fn new(hp_json_path: &str) -> PyResult<Self> {
         let inner = crate::Fenominal::from_hpo_json(hp_json_path)
@@ -110,12 +108,9 @@ impl PyFenominal {
         Ok(PyFenominal { inner })
     }
 
-    /// Mines text and returns the hits serialized as a JSON string.
     fn map_text(&self, text: &str) -> PyResult<String> {
         let hits = self.inner.map_text(text)
             .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e.to_string()))?;
-        
-        // Serialize the results to JSON for easy consumption in Python
         serde_json::to_string(&hits)
             .map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))
     }
