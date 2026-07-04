@@ -39,7 +39,7 @@ jobs:
 
       - name: Build with VitePress
         run: npm run docs:build
-        working_directory: docs
+        working-directory: docs
 
       # Crucial middle-man step: Packs up the built HTML/JS
       - name: Upload artifact
