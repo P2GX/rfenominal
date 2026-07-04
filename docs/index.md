@@ -14,12 +14,48 @@ hero:
       text: API Examples
       link: /api-examples
 
+
 features:
-  - title: Feature A
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature B
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature C
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+  - title: Blazing Fast
+    details: Leverages Rust's memory safety and speed to parse clinical texts instantly.
+  - title: Python Bindings
+    details: Fully interoperable with Python data science pipelines via PyO3/Maturin.
+  - title: HPO Integrated
+    details: Designed to be integrated with the Human Phenotype Ontology.
 ---
 
+
+<template #home-features-before>
+  <div class="home-custom-content">
+    This package is a Rust implementation of the 
+    <a href="https://pubmed.ncbi.nlm.nih.gov/38001031/" target="_blank" rel="noopener noreferrer">fenominal</a> 
+    algorithm, for which we initially created a 
+    <a href="https://github.com/monarch-initiative/fenominal" target="_blank" rel="noopener noreferrer">Java</a> 
+    implementation.
+  </div>
+</template>
+
+<style>
+.home-custom-content {
+  max-width: 1152px;
+  margin: 48px auto;
+  padding: 0 64px;
+  font-size: 1.2rem;
+  line-height: 1.6;
+  text-align: center;
+  color: var(--vp-c-text-2);
+}
+
+@media (max-width: 960px) {
+  .home-custom-content {
+    padding: 0 48px;
+  }
+}
+
+@media (max-width: 640px) {
+  .home-custom-content {
+    padding: 0 24px;
+    font-size: 1rem;
+  }
+}
+</style>
