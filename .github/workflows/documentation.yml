@@ -5,7 +5,7 @@ on:
     branches: [main, develop]
     paths:
       - 'docs/**'
-      - '.github/workflows/docs.yml'
+      - '.github/workflows/documentation.yml'
 
 permissions:
   contents: read
@@ -39,6 +39,7 @@ jobs:
 
       - name: Build with VitePress
         run: npm run docs:build
+        working_directory: docs
 
       # Crucial middle-man step: Packs up the built HTML/JS
       - name: Upload artifact
@@ -48,5 +49,8 @@ jobs:
 
       # Deploys the uploaded artifact live to the web
       - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/.vitepress/dist
+          force_orphan: true
