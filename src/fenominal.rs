@@ -71,7 +71,7 @@ impl<O, T> Fenominal<O, T>
         let sentences = sentence_split(&sanitized_text);
         let mut start = 0 as usize;
         let mut fenom_sent_list = Vec::with_capacity(sentences.len());
-        for (i, s) in sentences.into_iter().enumerate() {
+        for s in sentences.into_iter() {
             let fsent = self.mine_sentence(&s, start)?;
             start += fsent.text_length() +1;
             fenom_sent_list.push(fsent);

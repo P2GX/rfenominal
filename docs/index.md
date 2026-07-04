@@ -5,23 +5,26 @@ layout: home
 hero:
   name: "Fenominal"
   text: "HPO-based text mining in Rust and Python"
-  tagline: My great project tagline
+  tagline: Human Phenotype Ontogy named entity recognition
   actions:
     - theme: brand
-      text: Markdown Examples
-      link: /markdown-examples
+      text: Rust Guide
+      link: /guide/rust-api
     - theme: alt
-      text: API Examples
-      link: /api-examples
+      text: Python Guide
+      link: /guide/python-api
 
 
 features:
   - title: Blazing Fast
     details: Leverages Rust's memory safety and speed to parse clinical texts instantly.
+    link: /guide/rust-api
   - title: Python Bindings
     details: Fully interoperable with Python data science pipelines via PyO3/Maturin.
+    link: /guide/python-api
   - title: HPO Integrated
     details: Designed to be integrated with the Human Phenotype Ontology.
+    link: /guide/hpo
 ---
 
 <div class="home-custom-content">

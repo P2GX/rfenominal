@@ -77,7 +77,7 @@ mod stopwords;
 
 pub use crate::autocomplete::{AutoCompleter, OntologyMatch};
 pub use crate::models::fenominal_model::{
-    FenominalHit, FenominalHitSegment, FenominalSegment, FenominalSentence, FenominalText,
+    FenominalHit, FenominalSegment, FenominalSentence,
 };
 pub use crate::fenominal::Fenominal;
 pub use crate::util::text_util::sanitize;

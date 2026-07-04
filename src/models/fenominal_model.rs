@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 /// A sentence of the original text
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[serde(tag = "kind", rename_all = "camelCase")]
+#[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
 pub struct FenominalSentence { 
     /// Start offset of this sentence within the original source text.
     /// Units match `FenominalHit::span` (so hit spans and sentence
@@ -34,8 +34,8 @@ impl FenominalSentence {
     /// Only the matched HPO entities, excluding plain-text segments.
     pub fn hit_iter(&self) -> impl Iterator<Item = &FenominalHit> {
         self.segments.iter().filter_map(|s| match s {
-            FenominalSegment::Hit(hit) => Some(&hit.hit),
-            FenominalSegment::Text(_) => None,
+            FenominalSegment::Hit {hit, ..} => Some(hit),
+            FenominalSegment::Text{ .. } => None,
         })
     }
 
@@ -61,7 +61,7 @@ impl fmt::Display for FenominalSentence {
 /// A named entity identified by text mining.
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[serde(tag = "kind", rename_all = "camelCase")]
+#[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))] 
 pub struct FenominalHit {
     /// The entity's term ID.
     pub term_id: String,
@@ -104,54 +104,25 @@ impl fmt::Display for FenominalHit {
     }
 }
 
-/// Text from a sentence that was not parsed as a hit (i.e., "in-between")
-#[derive(Debug, Clone, PartialEq, Eq)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[serde(tag = "kind", rename_all = "camelCase")]
-pub struct FenominalText {
-    pub text: String,
-    pub span: Range<usize>,
-}
 
 
-impl fmt::Display for FenominalText {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.text)?;
-        Ok(())  
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[serde(tag = "kind", rename_all = "camelCase")]
-pub struct FenominalHitSegment {
-    pub text: String,
-    #[cfg_attr(feature = "serde", serde(flatten))]
-    pub hit: FenominalHit,
-}
-
-impl fmt::Display for FenominalHitSegment {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.hit)
-    }
-}
 
 
 /// A contiguous piece of a sentence: either a recognized entity or plain text.
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[serde(tag = "kind", rename_all = "camelCase")]
+#[cfg_attr(feature = "serde", serde(tag = "kind", rename_all = "camelCase"))]
 pub enum FenominalSegment {
-    Hit(FenominalHitSegment),
-    Text(FenominalText),
+     Hit { text: String, hit: FenominalHit },
+    Text { text: String, span: Range<usize> },
 }
 
 
 impl fmt::Display for FenominalSegment {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            FenominalSegment::Hit(hit) => write!(f, "{}", hit),
-            FenominalSegment::Text(text) => write!(f, "{}", text),
+            FenominalSegment::Hit { hit, .. } => write!(f, "{}", hit),
+            FenominalSegment::Text { text, .. } => write!(f, "{}", text),
         }
     }
 }
@@ -159,23 +130,19 @@ impl fmt::Display for FenominalSegment {
 
 impl FenominalSegment {
 
-    pub fn plain_text(text_segment: impl Into<String>, start_pos: usize) -> Self {
+   pub fn plain_text(text_segment: impl Into<String>, start_pos: usize) -> Self {
         let text: String = text_segment.into();
         let end_pos = start_pos + text.len();
-        FenominalSegment::Text(
-            FenominalText { 
-                text, 
-                span: start_pos..end_pos, 
-            }
-        )
+        FenominalSegment::Text {
+            text,
+            span: start_pos..end_pos,
+        }
     }
 
-     pub fn from_hit(hit: &FenominalHit, matched_text: impl Into<String>) -> Self {
-        FenominalSegment::Hit(
-            FenominalHitSegment {
-                text: matched_text.into(),
-                hit: hit.clone()
-            }
-        )
+    pub fn from_hit(hit: &FenominalHit, matched_text: impl Into<String>) -> Self {
+        FenominalSegment::Hit {
+            text: matched_text.into(),
+            hit: hit.clone(),
+        }
     }
 }
