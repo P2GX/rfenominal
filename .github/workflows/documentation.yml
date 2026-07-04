@@ -17,7 +17,10 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -37,21 +40,13 @@ jobs:
       - name: Build with VitePress
         run: npm run docs:build
 
+      # Crucial middle-man step: Packs up the built HTML/JS
       - name: Upload artifact
-        uses: actions/configure-pages@v5
+        uses: actions/upload-pages-artifact@v3
         with:
-          generator_name: "custom"
-      #- uses: actions/upload-pages-artifact@v3
-      #  with:
-      #    path: docs/.vitepress/dist
+          path: docs/.vitepress/dist
 
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
+      # Deploys the uploaded artifact live to the web
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
