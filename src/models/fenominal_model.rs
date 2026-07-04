@@ -69,8 +69,9 @@ pub struct FenominalHit {
     pub label: String,
     /// The coordinates of the entity within the source text.
     pub span: Range<usize>,
-    /// The observation status (present/excluded).
-    pub is_observed: bool,
+    /// The observation status (observed/excluded). We record excluded in
+    /// conformance with the GA4GH Phenopacket Schema
+    pub excluded: bool,
 }
 
 impl FenominalHit {
@@ -79,7 +80,7 @@ impl FenominalHit {
             term_id,
             label: label.to_string(),
             span,
-            is_observed,
+            excluded: !is_observed,
         }
     }
 
@@ -99,7 +100,7 @@ impl fmt::Display for FenominalHit {
             self.term_id,
             self.span.start,
             self.span.end,
-            if self.is_observed { "observed" } else { "excluded" }
+            if self.excluded { "excluded" }  else { "observed" }
         )
     }
 }
