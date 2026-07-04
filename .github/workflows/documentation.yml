@@ -41,6 +41,11 @@ jobs:
         run: npm run docs:build
         working-directory: docs
 
+      - name: Print working directory
+        run: pwd
+
+      - name: List repository
+        run: ls -R
       # Crucial middle-man step: Packs up the built HTML/JS
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
