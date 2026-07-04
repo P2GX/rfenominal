@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 /// A sentence of the original text
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[serde(tag = "kind", rename_all = "snake_case")]
+#[serde(tag = "kind", rename_all = "camelCase")]
 pub struct FenominalSentence { 
     /// Start offset of this sentence within the original source text.
     /// Units match `FenominalHit::span` (so hit spans and sentence
@@ -61,7 +61,7 @@ impl fmt::Display for FenominalSentence {
 /// A named entity identified by text mining.
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[serde(tag = "kind", rename_all = "snake_case")]
+#[serde(tag = "kind", rename_all = "camelCase")]
 pub struct FenominalHit {
     /// The entity's term ID.
     pub term_id: String,
@@ -107,7 +107,7 @@ impl fmt::Display for FenominalHit {
 /// Text from a sentence that was not parsed as a hit (i.e., "in-between")
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[serde(tag = "kind", rename_all = "snake_case")]
+#[serde(tag = "kind", rename_all = "camelCase")]
 pub struct FenominalText {
     pub text: String,
     pub span: Range<usize>,
@@ -123,7 +123,7 @@ impl fmt::Display for FenominalText {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[serde(tag = "kind", rename_all = "snake_case")]
+#[serde(tag = "kind", rename_all = "camelCase")]
 pub struct FenominalHitSegment {
     pub text: String,
     #[cfg_attr(feature = "serde", serde(flatten))]
@@ -140,7 +140,7 @@ impl fmt::Display for FenominalHitSegment {
 /// A contiguous piece of a sentence: either a recognized entity or plain text.
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[serde(tag = "kind", rename_all = "snake_case")]
+#[serde(tag = "kind", rename_all = "camelCase")]
 pub enum FenominalSegment {
     Hit(FenominalHitSegment),
     Text(FenominalText),
