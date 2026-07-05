@@ -1,72 +1,58 @@
 ---
-# https://vitepress.dev/reference/default-theme-home-page
 layout: home
 
 hero:
   name: "Fenominal"
-  text: "HPO-based text mining in Rust and Python"
-  tagline: Human Phenotype Ontogy named entity recognition
+  text: "HPO-based text mining engine"
+  tagline: High-performance entity recognition in Rust with Python bindings
   actions:
     - theme: brand
-      text: Rust Guide
-      link: /guide/rust-api
+      text: Get Started
+      link: /guide/getting-started
     - theme: alt
-      text: Python Guide
+      text: Python API
       link: /guide/python-api
 
-
 features:
-  - title: Blazing Fast
-    details: Leverages Rust's memory safety and speed to parse clinical texts instantly.
+  - title: High Performance (Rust Core)
+    details: Built in Rust for fast and memory-safe processing of large-scale clinical text corpora.
     link: /guide/rust-api
-  - title: Python Bindings
-    details: Fully interoperable with Python data science pipelines via PyO3/Maturin.
+
+  - title: Python Integration
+    details: Seamless bindings for use in data science and NLP pipelines via PyO3/Maturin.
     link: /guide/python-api
-  - title: HPO Integrated
-    details: Designed to be integrated with the Human Phenotype Ontology.
-    link: /guide/hpo
+
+  - title: Ontology-Aware (HPO)
+    details: Designed around the Human Phenotype Ontology for structured biomedical concept recognition.
+    link: /guide/getting-started
 ---
 
-<div class="home-custom-content">
-  This package is a Rust implementation of the 
-  <a href="https://pubmed.ncbi.nlm.nih.gov/38001031/" target="_blank" rel="noopener noreferrer">fenominal</a> 
-  algorithm, for which we initially created a 
-  <a href="https://github.com/monarch-initiative/fenominal" target="_blank" rel="noopener noreferrer">Java</a> 
-  implementation.
-</div>
+## Overview
 
-<style scoped>
-.home-custom-content {
-  max-width: 1152px;
-  margin: 64px auto 32px auto;
-  padding: 0 64px;
-  font-size: 1.25rem;
-  line-height: 1.6;
-  text-align: center;
-  color: var(--vp-c-text-1);
-}
+Fenominal is a high-performance **Human Phenotype Ontology (HPO)** text mining engine designed for robust named entity recognition in clinical and biomedical text.
 
-.home-custom-content a {
-  color: var(--vp-c-brand-1);
-  font-weight: 500;
-  text-decoration: underline;
-  text-underline-offset: 4px;
-}
+It implements and extends the algorithm described in:
 
-.home-custom-content a:hover {
-  color: var(--vp-c-brand-2);
-}
+> Groza T, et al. (2023)  
+> *Term-BLAST-like alignment tool for concept recognition in noisy clinical texts*  
+> Bioinformatics 39(12): btad716  
+> https://pubmed.ncbi.nlm.nih.gov/38001031/
 
-@media (max-width: 960px) {
-  .home-custom-content {
-    padding: 0 48px;
-  }
-}
+---
 
-@media (max-width: 640px) {
-  .home-custom-content {
-    padding: 0 24px;
-    font-size: 1.1rem;
-  }
-}
-</style>
+## Key Capabilities
+
+- Extracts HPO terms from noisy clinical narratives
+- Optimized Rust backend for performance-critical workloads
+- Python bindings for ML/NLP pipelines
+- Designed for reproducible biomedical text mining
+
+---
+
+## Get Started
+
+Choose your environment:
+
+- 👉 **Rust users:** [Rust API Guide](./guide/rust-api)
+- 🐍 **Python users:** [Python API Guide](./guide/python-api)
+- 🚀 **New users:** [Getting Started](./guide/getting-started)
