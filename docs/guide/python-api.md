@@ -4,20 +4,14 @@
 
 ## Installation
 
-fenominal is not yet in PyPI. For now, follow the following instructions
+fenominal can be installed from [PyPI](https://pypi.org/project/fenominal/) using `pip`.
 
-1. Clone the package, cd into the package with an active virtual environment, and install fenominal
 ```bash
-git clone https://github.com/P2GX/fenominal.git
-cd fenominal
-python3 -m venv venv
-source venv/bin/activate
-pip install maturin
-maturin develop
+pip install fenominal
 ```
 
 
-### Python
+## Using fenominal
 
 Fenominal can be run like this:
 
@@ -26,7 +20,26 @@ import json
 from fenominal import Fenominal
 
 # Point this to a valid HPO JSON file path on your system
-fe = Fenominal("path/to/hp.json")
-result = fe.map_text("Patient presents with severe microcephaly.")
+fenominal = Fenominal("path/to/hp.json")
+result = fenominal.map_text("Patient presents with severe microcephaly.")
 print(json.loads(result))
 ```
+
+The output of the command is a list of dictionaries with this structure:
+
+```json
+[
+  {
+    "term_id": "string (HPO Term ID)",
+    "label": "string (Phenotype name)",
+    "span": {
+      "start": "integer (Character start index)",
+      "end": "integer (Character end index)"
+    },
+    "is_observed": "boolean (Presence of phenotypic feature)"
+  }
+]
+```
+
+This corresponds to the `FenominalHit` struct of the [Rust fenominal library](rust-api.md).
+
