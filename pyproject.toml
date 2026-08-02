@@ -5,12 +5,23 @@ build-backend = "maturin"
 [project]
 name = "fenominal"
 requires-python = ">=3.7"
+license = { text = "MIT" } 
+readme = "README.md"
+description = "HPO/MAxO Text Mining. Rust Version of fenominal"
 classifiers = [
     "Programming Language :: Rust",
-    "Programming Language :: Python :: Implementation :: CPython"
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
 ]
 keywords = ["Human Phenotype Ontology", "hpo", "phenotype"]
 dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://github.com/P2GX/fenominal"
+Documentation = "https://p2gx.github.io/fenominal/"
+Repository = "https://github.com/P2GX/fenominal"
+Issues = "https://github.com/P2GX/fenominal/issues"
 
 [tool.maturin]
 # Direct maturin to use the python feature flag during compilation

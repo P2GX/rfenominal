@@ -12,6 +12,9 @@ hero:
     - theme: alt
       text: Python API
       link: /guide/python-api
+    - theme: alt
+      text: Rust API
+      link: /guide/rust-api
 
 features:
   - title: High Performance (Rust Core)

@@ -1,6 +1,6 @@
 [package]
 name = "fenominal"
-version = "0.3.1"
+version = "0.3.2"
 description = "HPO-based text mining. Rust version of fenominal"
 edition = "2021"
 
@@ -32,8 +32,10 @@ thiserror = "2.0.18"
 default = ["serde"]
 serde = ["dep:serde", "dep:serde_json"]
 python = ["dep:pyo3"]
-extension-module = ["pyo3?/extension-module"] # ? means: if pyo3 is enabled, use the extension module
+extension-module = ["python","pyo3?/extension-module"] # ? means: if pyo3 is enabled, use the extension module
 
+[tool.maturin]
+features = ["extension-module"]
 
 [dev-dependencies]
 clap = { version = "4.5", features = ["derive"] }

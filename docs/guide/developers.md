@@ -24,9 +24,13 @@ extension-module = ["pyo3?/extension-module"]   # note the `?` — see "Gotchas"
   single wheel that works across Python versions instead of needing one wheel per minor version.
 
 ## Release (Python wheel via maturin)
-
+For develop
 ```bash
-maturin develop --features extension-module
+maturin develop --features "python,extension-module"
+```
+for the release build
+```bash
+maturin build --release --features "python,extension-module"
 ```
 
 To release on PyPI: commit a version bump to `main`, then tag it (use the version number as the tag):
