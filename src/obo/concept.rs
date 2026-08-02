@@ -11,13 +11,13 @@ use crate::stopwords::is_stop;
 /// check not only for exact matches with the label etc but permutations thereof.
 /// This object is intended to represent a concept from the Ontology and not a hit in an actual text.
 #[derive(Clone, Debug)]
-pub struct HpoConcept {
+pub struct Concept {
     original_concept: String,
     non_stop_words: HashSet<String>,
     term_id: TermId,
 }
 
-impl HpoConcept {
+impl Concept {
     pub fn new(concept: &str, tid: TermId) -> Self {
         let words: Vec<&str> = concept.split_whitespace().collect();
         let filtered_words: HashSet<String> = words
@@ -25,15 +25,11 @@ impl HpoConcept {
             .filter(|word| !is_stop(word))
             .map(|word| word.to_string())
             .collect();
-        HpoConcept {
+        Concept {
             original_concept: concept.into(),
             non_stop_words: filtered_words,
             term_id: tid,
         }
-    }
-
-    pub fn get_original_concept(&self) -> &str {
-        &self.original_concept
     }
 
     pub fn get_non_stop_words(&self) -> &HashSet<String> {
@@ -44,11 +40,11 @@ impl HpoConcept {
         return self.non_stop_words == *other_non_stop_words;
     }
 
-    pub fn get_hpo_id(&self) -> &TermId {
+    pub fn get_term_id(&self) -> &TermId {
         &self.term_id
     }
 
-    pub fn hpo_id_equal(&self, other_tid: &TermId) -> bool {
+    pub fn term_id_equal(&self, other_tid: &TermId) -> bool {
         self.term_id == *other_tid
     }
 
@@ -74,8 +70,8 @@ mod test {
         // Cone-shaped epiphysis of the proximal phalanx of the 3rd finger HP:0009348
         let term_id: TermId = ("HP", "0009348").into();
         let term_label = "Cone-shaped epiphysis of the proximal phalanx of the 3rd finger";
-        let hconcept = HpoConcept::new(term_label, term_id);
-        assert_eq!(term_label, hconcept.get_original_concept());
+        let hconcept = Concept::new(term_label, term_id);
+        assert_eq!(term_label, hconcept.original_concept);
         // We have 8 words but only 6 non-stop words ("of" and "the" are stop words)
         assert_eq!(6, hconcept.word_count());
         let nstops: HashSet<String> = vec![

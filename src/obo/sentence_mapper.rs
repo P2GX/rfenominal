@@ -14,11 +14,12 @@ use ontolius::ontology::{HierarchyWalks, OntologyTerms};
 use ontolius::term::{MinimalTerm, Synonymous};
 use std::collections::HashSet;
 use crate::models::fenominal_model::FenominalHit;
+use crate::models::ontology_profile::OntologyProfile;
 use crate::stopwords::is_stop;
 use crate::util::error::FenominalError;
 use crate::util::negex::NegEx;
 use crate::{simple_sentence::SimpleSentence, simple_token::SimpleToken};
-use crate::hpo::default_hpo_mapper::DefaultHpoMapper;
+use crate::obo::term_mapper::TermMapper;
 
 /// This is a set of words that we use to indentify exclusion (negation) of phenotypic abnormality
 ///
@@ -40,7 +41,7 @@ static NEGATION_CLUES: Lazy<HashSet<String>> = Lazy::new(|| {
 pub struct SentenceMapper<O, T> where
         O: OntologyTerms<T> + HierarchyWalks,
         T: MinimalTerm + Synonymous {
-    hpo_mapper: DefaultHpoMapper,
+    term_mapper: TermMapper,
     ontology: Arc<O>,
     _marker: PhantomData<T>,
     negex: NegEx,
@@ -49,10 +50,10 @@ pub struct SentenceMapper<O, T> where
 impl<O, T>  SentenceMapper<O, T> where
         O: OntologyTerms<T> + HierarchyWalks,
         T: MinimalTerm + Synonymous {
-    pub fn new(ontology: Arc<O>) -> Self {
-        let mapper = DefaultHpoMapper::new(ontology.clone());
+     pub fn new(ontology: Arc<O>, profile: &OntologyProfile) -> Self {
+        let mapper = TermMapper::new(ontology.clone(), profile);
         SentenceMapper { 
-            hpo_mapper: mapper,
+            term_mapper: mapper,
             ontology: ontology.clone(),
             _marker: PhantomData,
             negex: NegEx::from_embedded(),
@@ -73,7 +74,7 @@ impl<O, T>  SentenceMapper<O, T> where
         let start_pos_offset = simple_sentence.get_start_pos();
         let mut mapped_sentence_part_list = Vec::new();
         // Check window sizes from largest to smallest
-        let max_window = min(DefaultHpoMapper::MAX_HPO_TERM_TOKEN_COUNT, tokens.len());
+        let max_window = min(self.term_mapper.max_tokens(), tokens.len());
         // was the corresponding token already used for a "hit"?
         let mut token_used = vec![false; nonstop_tokens.len()];
         for window_size in (1..=max_window).rev() {
@@ -87,10 +88,10 @@ impl<O, T>  SentenceMapper<O, T> where
                     .iter()
                     .map(|stoken| stoken.get_lc_original_token())
                     .collect();
-                if let Some(hpo_match) = self.hpo_mapper.get_match(&string_chunk_refs) {
-                    let hpo_id = hpo_match.get_hpo_id();
-                    let term = self.ontology.term_by_id(hpo_id)
-                        .ok_or_else(|| FenominalError::term_retrieval_error(hpo_id))?;
+                if let Some(term_match) = self.term_mapper.get_match(&string_chunk_refs) {
+                    let term_id = term_match.get_term_id();
+                    let term = self.ontology.term_by_id(term_id)
+                        .ok_or_else(|| FenominalError::term_retrieval_error(term_id))?;
                     // Get character positions from the tokens
                     let start_char = chunks[0].get_start_pos() + start_pos_offset;
                     let end_char = chunks[chunks.len() - 1].get_end_pos() + start_pos_offset;
@@ -101,7 +102,7 @@ impl<O, T>  SentenceMapper<O, T> where
                     let is_excluded = self.negex.is_negated(&full_sentence_refs, hit_idx_range);
 
                     let hit = FenominalHit::new(
-                        hpo_id.to_string(),
+                        term_id.to_string(),
                         term.name(),
                         start_char..end_char,
                         !is_excluded,
@@ -136,32 +137,32 @@ mod tests {
     use ontolius::TermId;
     use rstest::{fixture, rstest};
 
-    use crate::hpo::hpo_concept::HpoConcept;
+    use crate::obo::concept::Concept;
 
     use super::*;
 
     
 #[fixture]
-pub fn paramedian_cleft_palate() -> HpoConcept {
+pub fn paramedian_cleft_palate() -> Concept {
     let hpo_id = TermId::from_str("HP:0009099").unwrap();
     let label = "paramedian cleft lip";
-    HpoConcept::new(label, hpo_id)
+    Concept::new(label, hpo_id)
 } 
 
 #[fixture]
-fn decreased_hc() -> HpoConcept {
+fn decreased_hc() -> Concept {
     // Microcephaly HP:0000252
     let hpo_id = TermId::from_str("HP:0040195").unwrap();
     let label = "Decreased head circumference";
-    HpoConcept::new(label, hpo_id)
+    Concept::new(label, hpo_id)
 }
 
 #[fixture]
 fn component_token_to_concept_map(
-    decreased_hc: HpoConcept,
-    paramedian_cleft_palate: HpoConcept
-) -> HashMap<String, Vec<HpoConcept>> {
-    let mut map: HashMap<String, Vec<HpoConcept>> = HashMap::new();
+    decreased_hc: Concept,
+    paramedian_cleft_palate: Concept
+) -> HashMap<String, Vec<Concept>> {
+    let mut map: HashMap<String, Vec<Concept>> = HashMap::new();
     let dch = vec![decreased_hc];
     for token in vec!["Decreased", "head", "circumference"] {
         map.insert(token.to_string(), dch.clone());
@@ -177,16 +178,16 @@ fn component_token_to_concept_map(
 
 #[rstest]
 fn paramedian_cp(
-    component_token_to_concept_map:HashMap<String, Vec<HpoConcept>>,
-    paramedian_cleft_palate: HpoConcept
+    component_token_to_concept_map:HashMap<String, Vec<Concept>>,
+    paramedian_cleft_palate: Concept
 )  {
     let result = component_token_to_concept_map.get("cleft");
     assert!(result.is_some());
     let hpo_concept_list = result.unwrap();
     assert_eq!(1, hpo_concept_list.len());
     let hpo_concept = hpo_concept_list[0].clone();
-    let expected_term_id: &TermId = paramedian_cleft_palate.get_hpo_id();
-    let observed_term_id: &TermId = hpo_concept.get_hpo_id();
+    let expected_term_id: &TermId = paramedian_cleft_palate.get_term_id();
+    let observed_term_id: &TermId = hpo_concept.get_term_id();
     assert_eq!(expected_term_id, observed_term_id);
 }
 

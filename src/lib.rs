@@ -22,7 +22,7 @@
 //!           ).expect("HPO should be well formatted");
 //! let hpo = Arc::new(hpo);
 //! // Configure Fenominal
-//! let fenominal = Fenominal::new(hpo);
+//! let fenominal = Fenominal::new_hpo(hpo);
 //! ```
 //!
 //! ## Use Fenominal
@@ -50,7 +50,7 @@
 //!              GzDecoder::new(BufReader::new(File::open(hp_path).expect("HPO should be readable")))
 //!            ).expect("HPO should be well formatted");
 //! let hpo = Arc::new(hpo);
-//! let fenominal = Fenominal::new(hpo);
+//! let fenominal = Fenominal::new_hpo(hpo);
 //! 
 //!
 //! // Perform text mining
@@ -60,15 +60,27 @@
 //! let labels: Vec<_> = hits.iter().map(|hit| &hit.label).collect();
 //! assert_eq!(labels, &["Intellectual disability", "Macrocephaly", "Scoliosis"]);
 //! ```
-//!
 //! 
-
+//! ## MAXO (Medical Action Ontology)
+//!
+//! Fenominal can mine MAXO term labels the same way, using [`Fenominal::new_maxo`]
+//! instead of [`Fenominal::new_hpo`]:
+//!
+//! ```ignore
+//! use fenominal::Fenominal;
+//!
+//! let maxo_path = "/some/path/maxo.json"; // adjust to actual path
+//! let fenominal = Fenominal::new_maxo_json(maxo);
+//! ```
+//!
+//! A given `Fenominal` instance mines a single ontology — construct one instance per
+//! ontology (HPO, MAXO, ...) if you need hits from more than one.
 
 mod autocomplete;
 mod core_document;
 mod fenominal;
 mod util;
-mod hpo;
+mod obo;
 mod models;
 mod simple_sentence;
 mod simple_token;
@@ -102,9 +114,18 @@ pub struct PyFenominal {
 #[pymethods]
 impl PyFenominal {
     #[new]
-    fn new(hp_json_path: &str) -> PyResult<Self> {
-        let inner = crate::Fenominal::from_hpo_json(hp_json_path)
-            .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e))?;
+    #[pyo3(signature = (json_path, ontology="hpo"))]
+    fn new(json_path: &str, ontology: &str) -> PyResult<Self> {
+        let inner = match ontology {
+            "hpo" => crate::Fenominal::from_hpo_json(json_path),
+            "maxo" => crate::Fenominal::from_maxo_json(json_path),
+            other => {
+                return Err(pyo3::exceptions::PyValueError::new_err(
+                    format!("Unknown ontology '{other}', expected 'hpo' or 'maxo'")
+                ))
+            }
+        }
+        .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e))?;
         Ok(PyFenominal { inner })
     }
 

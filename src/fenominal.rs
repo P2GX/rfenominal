@@ -3,8 +3,9 @@ use std::sync::Arc;
 
 
 use crate::core_document::CoreDocument;
-use crate::hpo::sentence_mapper::SentenceMapper;
-use crate::hpo::text_to_annotation::fenominal_hits_to_sentence;
+use crate::models::ontology_profile::OntologyProfile;
+use crate::obo::sentence_mapper::SentenceMapper;
+use crate::obo::text_to_annotation::fenominal_hits_to_sentence;
 use crate::models::fenominal_model::{FenominalHit, FenominalSentence};
 use crate::simple_sentence::SimpleSentence;
 use crate::util::error::FenominalError;
@@ -33,11 +34,19 @@ impl<O, T> Fenominal<O, T>
     T: MinimalTerm + Synonymous  
     {
 
-    pub fn new(hpo: Arc<O>)-> Self {
+    fn new(hpo: Arc<O>, profile: &OntologyProfile)-> Self {
         let hpo_arc = Arc::clone(&hpo);
         Self {
-            sentence_mapper: SentenceMapper::new(hpo_arc),
+            sentence_mapper: SentenceMapper::new(hpo_arc, profile),
         }
+    }
+
+    pub fn new_hpo(ontology: Arc<O>) -> Self {
+        Self::new(ontology, &OntologyProfile::hpo())
+    }
+
+    pub fn new_maxo(ontology: Arc<O>) -> Self {
+        Self::new(ontology, &OntologyProfile::maxo())
     }
 
 
@@ -86,13 +95,17 @@ impl<O, T> Fenominal<O, T>
 impl Fenominal<FullCsrOntology, SimpleTerm> {
     pub fn from_hpo_json(path: &str) -> Result<Self, String> {
         let loader = OntologyLoaderBuilder::new().obographs_parser().build();
-        
-        // If load_from_path can fail, it's safer to map the error rather than panicking with expect
         let ontology: FullCsrOntology = loader
             .load_from_path(path)
             .map_err(|e| format!("Could not load {}: {}", path, e))?;
-            
-        let hpo_arc = Arc::new(ontology);
-        Ok(Self::new(hpo_arc))
+        Ok(Self::new_hpo(Arc::new(ontology)))
+    }
+
+    pub fn from_maxo_json(path: &str) -> Result<Self, String> {
+        let loader = OntologyLoaderBuilder::new().obographs_parser().build();
+        let ontology: FullCsrOntology = loader
+            .load_from_path(path)
+            .map_err(|e| format!("Could not load {}: {}", path, e))?;
+        Ok(Self::new_maxo(Arc::new(ontology)))
     }
 }

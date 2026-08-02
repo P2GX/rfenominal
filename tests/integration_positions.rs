@@ -17,7 +17,7 @@ const PARA1: &str = r#"This patient was a 2-year-old boy, the second child of no
 fn test_parse_para_1(
     hpo: Arc<FullCsrOntology>
 ) {
-    let fenominal = Fenominal::new(hpo);
+    let fenominal = Fenominal::new_hpo(hpo);
     let fenominal_hits: Vec<FenominalHit> = fenominal.process(PARA1).unwrap();
     let hydronephrosis_start = PARA1.find("hydronephrosis").unwrap();
     let hydrouterer_start = PARA1.find("dilated ureter").unwrap();
@@ -63,7 +63,7 @@ fn test_median_cp(
     // Expect to find Cleft palate HP:0000175
     let text = "Physical examination showed a cleft palate which had been surgically corrected";
     let hpo_arc = hpo.clone();
-    let fenominal = Fenominal::new(hpo_arc);
+    let fenominal = Fenominal::new_hpo(hpo_arc);
     let fenominal_hits: Vec<FenominalHit> = fenominal.process(text).unwrap();
     assert_eq!(1, fenominal_hits.len());
     let cp = fenominal_hits[0].clone();

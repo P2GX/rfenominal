@@ -18,7 +18,7 @@ fn test_ftt(
     hpo: Arc<FullCsrOntology>
 ) {
     let text="Failure to thrive";
-    let fenominal = Fenominal::new(hpo);
+    let fenominal = Fenominal::new_hpo(hpo);
     let fenominal_hits: Vec<FenominalHit> = fenominal.process(&text).unwrap();
     assert_eq!(1, fenominal_hits.len());
     let fhit = &fenominal_hits[0];
@@ -29,7 +29,7 @@ fn test_ftt(
 fn test_parse_para_1(
     hpo: Arc<FullCsrOntology>
 ) {
-    let fenominal = Fenominal::new(hpo);
+    let fenominal = Fenominal::new_hpo(hpo);
     let sanitized = fenominal::sanitize(SENTENCE_1);
     let fenominal_hits: Vec<FenominalHit> = fenominal.process(&sanitized).unwrap();
     assert_eq!(3, fenominal_hits.len());
@@ -63,7 +63,7 @@ Echocardiography showed hypertrophic cardiomyopathy and pulmonic stenosis."#;
 fn test_sentence_miner_1(
     hpo: Arc<FullCsrOntology>
 ) {
-    let fenominal = Fenominal::new(hpo);
+    let fenominal = Fenominal::new_hpo(hpo);
     let sentences = fenominal.mine_sentences(CASE_REPORT_1).unwrap();
     assert_eq!(
         sentences.len(), 4,
@@ -110,7 +110,6 @@ fn test_sentence_miner_1(
         "Echocardiography showed hypertrophic cardiomyopathy and pulmonic stenosis."
     );
     assert_eq!(s3.text_length(), 74);
-    let hits = s3.hits();
     assert_hit(&s3.hits(), "HP:0001639", "Hypertrophic cardiomyopathy");
     assert_hit(&s3.hits(), "HP:0001642", "Pulmonic stenosis");
 }
@@ -129,7 +128,7 @@ Cough. Fever. Brachydactyly and Scoliosis. Not Short stature. Hypodontia"#;
 // 4) 62-72 "Hypodontia"
 #[rstest]
 fn test_sentence_miner_2(hpo: Arc<FullCsrOntology>) {
-    let fenominal = Fenominal::new(hpo);
+    let fenominal = Fenominal::new_hpo(hpo);
     let sentences = fenominal.mine_sentences(CASE_REPORT_2).unwrap();
 
     assert_eq!(
